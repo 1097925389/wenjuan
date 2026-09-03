@@ -1,0 +1,702 @@
+import { useEffect, useState } from 'react';
+import {
+  App as AntdApp,
+  Button,
+  Card,
+  Checkbox,
+  Divider,
+  Form,
+  Input,
+  Radio,
+  Result,
+  Space,
+  Tooltip,
+  Typography,
+} from 'antd';
+import type { FormInstance, FormProps } from 'antd';
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  FileProtectOutlined,
+  LockOutlined,
+  LogoutOutlined,
+  PlusOutlined,
+  SafetyCertificateOutlined,
+  SendOutlined,
+} from '@ant-design/icons';
+import {
+  EVENT_TITLE,
+  MAX_FAMILY_MEMBERS,
+  isValidChineseIdCard,
+  isValidMainlandPhone,
+  normalizeIdCard,
+  registrationSchema,
+} from '../shared/validation';
+import type { ApiError, RegistrationInput, RegistrationSuccess } from '../shared/validation';
+
+type FormValues = RegistrationInput;
+type RegistrationFieldData = Parameters<FormInstance<FormValues>['setFields']>[0][number];
+
+class RegistrationRequestError extends Error {
+  constructor(
+    readonly status: number,
+    readonly payload: ApiError,
+  ) {
+    super(payload.error || '提交失败');
+  }
+}
+
+async function submitRegistrationRequest(data: RegistrationInput): Promise<RegistrationSuccess> {
+  const response = await fetch('/api/registrations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const payload = (await response.json()) as RegistrationSuccess | ApiError;
+  if (!response.ok) throw new RegistrationRequestError(response.status, payload as ApiError);
+  return payload as RegistrationSuccess;
+}
+
+const INITIAL_VALUES: Partial<FormValues> = {
+  familyMembers: [],
+  otherNeeds: '',
+  consent: false,
+};
+
+const textRequired = (label: string, max: number) => [
+  { required: true, whitespace: true, message: `请填写${label}` },
+  { max, message: `${label}不能超过${max}个字符` },
+];
+
+function EventHeader() {
+  return (
+    <header className="event-header">
+      <p className="event-kicker">活动报名</p>
+      <h1 className="event-title">{EVENT_TITLE}</h1>
+      <p className="event-subtitle">
+        <SafetyCertificateOutlined aria-hidden="true" />
+        请准确填写报名、保险及入住所需信息
+      </p>
+    </header>
+  );
+}
+
+function applyApiValidationErrors(form: FormInstance<FormValues>, error: ApiError) {
+  if (!error.issues?.length) return;
+  form.setFields(
+    error.issues.map((issue) => ({
+      name: issue.path as RegistrationFieldData['name'],
+      errors: [issue.message],
+    })),
+  );
+}
+
+export function RegistrationPage({
+  initialValues = INITIAL_VALUES,
+}: {
+  initialValues?: Partial<FormValues>;
+}) {
+  const [form] = Form.useForm<FormValues>();
+  const { message, notification } = AntdApp.useApp();
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<RegistrationSuccess | null>(null);
+  const hasFamily = Form.useWatch('hasFamily', form);
+
+  useEffect(() => {
+    const context = document.modelContext;
+    if (!context?.registerTool) return;
+    const lifecycle = new AbortController();
+    const inputSchema = {
+      type: 'object',
+      additionalProperties: false,
+      required: [
+        'name',
+        'phone',
+        'organization',
+        'jobTitle',
+        'idNumber',
+        'hasFamily',
+        'familyMembers',
+        'roomType',
+        'otherNeeds',
+        'consent',
+      ],
+      properties: {
+        name: { type: 'string', minLength: 1, maxLength: 50 },
+        phone: { type: 'string', pattern: '^1[3-9]\\d{9}$' },
+        organization: { type: 'string', minLength: 1, maxLength: 100 },
+        jobTitle: { type: 'string', minLength: 1, maxLength: 50 },
+        idNumber: { type: 'string', pattern: '^\\d{17}[\\dXx]$' },
+        hasFamily: { type: 'boolean' },
+        familyMembers: {
+          type: 'array',
+          maxItems: MAX_FAMILY_MEMBERS,
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['name', 'idNumber'],
+            properties: {
+              name: { type: 'string', minLength: 1, maxLength: 50 },
+              idNumber: { type: 'string', pattern: '^\\d{17}[\\dXx]$' },
+            },
+          },
+        },
+        roomType: { type: 'string', enum: ['standard', 'single'] },
+        otherNeeds: { type: 'string', maxLength: 500 },
+        consent: { const: true },
+      },
+    };
+
+    try {
+      void Promise.resolve(
+        context.registerTool(
+          {
+            name: 'submit_event_registration',
+            title: '提交活动报名',
+            description: '提交或更新本次人工智能赋能智能制造行业交流会报名；调用会立即写入报名记录。',
+            inputSchema,
+            annotations: { readOnlyHint: false, untrustedContentHint: false },
+            execute: async (input) => {
+              const parsed = registrationSchema.safeParse(input);
+              if (!parsed.success) throw new Error('报名信息校验失败');
+              form.setFieldsValue(parsed.data);
+              const response = await submitRegistrationRequest(parsed.data);
+              setResult(response);
+              return {
+                status: response.status,
+                registrationId: response.registrationId,
+                maskedPhone: response.maskedPhone,
+                maskedIdNumber: response.maskedIdNumber,
+              };
+            },
+          },
+          { signal: lifecycle.signal },
+        ),
+      ).catch(() => undefined);
+    } catch {
+      // Unsupported or partial WebMCP implementations must not affect the visible form.
+    }
+
+    return () => lifecycle.abort();
+  }, [form]);
+
+  const revalidateIdentityFields = () => {
+    const families = form.getFieldValue('familyMembers') ?? [];
+    const names: Array<Array<string | number>> = [['idNumber']];
+    families.forEach((_: unknown, index: number) => names.push(['familyMembers', index, 'idNumber']));
+    void form.validateFields(names).catch(() => undefined);
+  };
+
+  const handleFamilyChoice = (value: boolean) => {
+    form.setFieldValue('hasFamily', value);
+    if (value) {
+      if ((form.getFieldValue('familyMembers') ?? []).length === 0) {
+        form.setFieldValue('familyMembers', [{ name: '', idNumber: '' }]);
+      }
+    } else {
+      form.setFieldValue('familyMembers', []);
+      form.setFields([{ name: ['familyMembers'], errors: [] }]);
+    }
+  };
+
+  const familyIdRules = (index: number) => [
+    { required: true, message: '请填写家属身份证号' },
+    {
+      validator: async (_: unknown, rawValue?: string) => {
+        if (!rawValue) return;
+        const current = normalizeIdCard(rawValue);
+        if (!isValidChineseIdCard(current)) throw new Error('请输入有效的18位身份证号');
+
+        const applicant = normalizeIdCard(form.getFieldValue('idNumber') ?? '');
+        if (current === applicant) throw new Error('身份证号与本人重复');
+
+        const families = form.getFieldValue('familyMembers') ?? [];
+        const duplicateIndex = families.findIndex(
+          (family: { idNumber?: string }, familyIndex: number) =>
+            familyIndex !== index && normalizeIdCard(family?.idNumber ?? '') === current,
+        );
+        if (duplicateIndex >= 0) throw new Error(`身份证号与家属${duplicateIndex + 1}重复`);
+      },
+    },
+  ];
+
+  const onFinish: FormProps<FormValues>['onFinish'] = async (values) => {
+    if (submitting) return;
+
+    const parsed = registrationSchema.safeParse(values);
+    if (!parsed.success) {
+      form.setFields(
+        parsed.error.issues.map((issue) => ({
+          name: issue.path as RegistrationFieldData['name'],
+          errors: [issue.message],
+        })),
+      );
+      const firstPath = parsed.error.issues[0]?.path;
+      if (firstPath) {
+        form.scrollToField(firstPath as RegistrationFieldData['name'], {
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload = await submitRegistrationRequest(parsed.data);
+      setResult(payload);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error) {
+      if (error instanceof RegistrationRequestError) {
+        const apiError = error.payload;
+        applyApiValidationErrors(form, apiError);
+        if (error.status === 409) {
+          notification.error({
+            title: '无法更新报名',
+            description: '该身份证号已登记，但手机号与原报名不一致。请核对后重试。',
+            placement: 'top',
+          });
+        } else if (error.status === 429) {
+          message.warning('提交过于频繁，请稍后再试');
+        } else {
+          message.error(apiError.error || '提交失败，请稍后重试');
+        }
+        return;
+      }
+      notification.error({
+        title: '暂时无法提交',
+        description: '请检查网络连接后重试，已填写的内容不会丢失。',
+        placement: 'top',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const resetForAnother = () => {
+    form.resetFields();
+    setResult(null);
+  };
+
+  if (result) {
+    return (
+      <main className="site-shell">
+        <div className="page-wrap">
+          <EventHeader />
+          <Card className="form-card result-card" variant="borderless">
+            <Result
+              status="success"
+              title={result.status === 'created' ? '报名提交成功' : '报名信息已更新'}
+              subTitle={`报名编号：${result.registrationId}`}
+              extra={
+                <Space wrap>
+                  <Button type="primary" onClick={() => setResult(null)}>
+                    返回修改信息
+                  </Button>
+                  <Button onClick={resetForAnother}>登记另一位</Button>
+                </Space>
+              }
+            >
+              <div className="result-summary" aria-label="报名信息摘要">
+                <div className="result-summary-row">
+                  <span>手机号</span>
+                  <strong>{result.maskedPhone}</strong>
+                </div>
+                <div className="result-summary-row">
+                  <span>身份证号</span>
+                  <strong>{result.maskedIdNumber}</strong>
+                </div>
+              </div>
+            </Result>
+          </Card>
+          <PageFooter />
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="site-shell">
+      <div className="page-wrap">
+        <EventHeader />
+        <Card className="form-card" variant="borderless">
+          <div className="form-intro">
+            <div>
+              <h2>参会信息登记</h2>
+              <p>请按证件信息如实填写，带 * 的项目为必填项。</p>
+            </div>
+            <span className="required-note">预计 3 分钟</span>
+          </div>
+
+          <Form<FormValues>
+            form={form}
+            layout="vertical"
+            initialValues={initialValues}
+            onFinish={onFinish}
+            scrollToFirstError={{ behavior: 'smooth', block: 'center' }}
+            requiredMark
+            size="large"
+          >
+            <div className="section-label">个人信息</div>
+            <Form.Item label="姓名" name="name" rules={textRequired('姓名', 50)}>
+              <Input placeholder="请输入本人姓名" autoComplete="name" maxLength={50} />
+            </Form.Item>
+
+            <Form.Item
+              label="手机号"
+              name="phone"
+              rules={[
+                { required: true, message: '请填写手机号' },
+                {
+                  validator: async (_, value?: string) => {
+                    if (value && !isValidMainlandPhone(value)) {
+                      throw new Error('请输入有效的11位大陆手机号');
+                    }
+                  },
+                },
+              ]}
+            >
+              <Input
+                placeholder="请输入11位大陆手机号"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                maxLength={11}
+              />
+            </Form.Item>
+
+            <Form.Item label="单位" name="organization" rules={textRequired('单位', 100)}>
+              <Input placeholder="请输入单位全称" autoComplete="organization" maxLength={100} />
+            </Form.Item>
+
+            <Form.Item label="职务" name="jobTitle" rules={textRequired('职务', 50)}>
+              <Input placeholder="请输入职务" autoComplete="organization-title" maxLength={50} />
+            </Form.Item>
+
+            <Form.Item
+              label="身份证号"
+              name="idNumber"
+              normalize={(value) => normalizeIdCard(value ?? '')}
+              rules={[
+                { required: true, message: '请填写身份证号' },
+                {
+                  validator: async (_, value?: string) => {
+                    if (value && !isValidChineseIdCard(value)) {
+                      throw new Error('请输入有效的18位身份证号');
+                    }
+                  },
+                },
+              ]}
+            >
+              <Input
+                placeholder="用于保险及入住办理"
+                autoComplete="off"
+                maxLength={18}
+                onBlur={revalidateIdentityFields}
+              />
+            </Form.Item>
+
+            <div className="privacy-hint">
+              <SafetyCertificateOutlined /> 身份证信息仅用于本次活动保险及入住办理，请确认内容准确。
+            </div>
+
+            <div className="section-label">同行与住宿</div>
+            <Form.Item
+              label="是否携带家属"
+              name="hasFamily"
+              required
+              rules={[
+                {
+                  validator: async (_, value) => {
+                    if (typeof value !== 'boolean') throw new Error('请选择是否携带家属');
+                  },
+                },
+              ]}
+            >
+              <Radio.Group
+                className="choice-radio-group"
+                onChange={(event) => handleFamilyChoice(event.target.value)}
+              >
+                <Radio.Button value={false}>否</Radio.Button>
+                <Radio.Button value={true}>是</Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+
+            <Form.List name="familyMembers">
+              {(fields, { add, remove }, { errors }) =>
+                hasFamily ? (
+                  <div className="family-panel" aria-live="polite">
+                      {fields.map((field, index) => (
+                        <div className="family-item" key={field.key}>
+                          <div className="family-item-title">
+                            <span>家属 {index + 1}</span>
+                            <Tooltip title={fields.length === 1 ? '至少保留1位家属' : '删除这位家属'}>
+                              <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                disabled={fields.length === 1}
+                                aria-label={`删除家属${index + 1}`}
+                                onClick={() => {
+                                  remove(field.name);
+                                  queueMicrotask(revalidateIdentityFields);
+                                }}
+                              />
+                            </Tooltip>
+                          </div>
+                          <Form.Item
+                            label="家属姓名"
+                            name={[field.name, 'name']}
+                            rules={textRequired('家属姓名', 50)}
+                          >
+                            <Input
+                              placeholder="请输入家属姓名"
+                              autoComplete="off"
+                              maxLength={50}
+                            />
+                          </Form.Item>
+                          <Form.Item
+                            label="家属身份证号"
+                            name={[field.name, 'idNumber']}
+                            normalize={(value) => normalizeIdCard(value ?? '')}
+                            rules={familyIdRules(index)}
+                          >
+                            <Input
+                              placeholder="请输入18位身份证号"
+                              autoComplete="off"
+                              maxLength={18}
+                              onBlur={revalidateIdentityFields}
+                            />
+                          </Form.Item>
+                        </div>
+                      ))}
+                      <Form.ErrorList errors={errors} />
+                      {fields.length < MAX_FAMILY_MEMBERS && (
+                        <Button
+                          className="add-family-button"
+                          type="dashed"
+                          block
+                          icon={<PlusOutlined />}
+                          onClick={() => add({ name: '', idNumber: '' })}
+                        >
+                          添加家属（最多{MAX_FAMILY_MEMBERS}人）
+                        </Button>
+                      )}
+                  </div>
+                ) : null
+              }
+            </Form.List>
+
+            <Form.Item
+              label="房型选择"
+              name="roomType"
+              rules={[{ required: true, message: '请选择房型' }]}
+            >
+              <Radio.Group className="choice-radio-group">
+                <Radio.Button value="standard">标间</Radio.Button>
+                <Radio.Button value="single">单间</Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+
+            <Divider />
+            <div className="section-label">补充信息</div>
+            <Form.Item label="其他需求" name="otherNeeds" rules={[{ max: 500, message: '其他需求不能超过500个字符' }]}>
+              <Input.TextArea
+                placeholder="如有饮食、出行或其他安排需求，请在此说明（选填）"
+                rows={4}
+                maxLength={500}
+                showCount
+              />
+            </Form.Item>
+
+            <div className="consent-box">
+              <Form.Item
+                name="consent"
+                valuePropName="checked"
+                rules={[
+                  {
+                    validator: async (_, checked) => {
+                      if (!checked) throw new Error('请确认信息并同意信息收集说明');
+                    },
+                  },
+                ]}
+              >
+                <Checkbox>
+                  我已确认以上信息无误，并同意主办方为本次活动报名、保险及入住安排收集和使用本人及随行家属信息；我已取得随行家属授权。
+                </Checkbox>
+              </Form.Item>
+            </div>
+
+            <Button
+              className="submit-button"
+              type="primary"
+              htmlType="submit"
+              block
+              icon={<SendOutlined />}
+              loading={submitting}
+              disabled={submitting}
+            >
+              {submitting ? '正在安全提交…' : '确认提交'}
+            </Button>
+          </Form>
+        </Card>
+        <PageFooter />
+      </div>
+    </main>
+  );
+}
+
+function PageFooter() {
+  return (
+    <footer className="page-footer">
+      <p className="page-footer-note">请勿在公共设备上保存或转发本人及家属证件信息。</p>
+      <div className="footer-brands">
+        <img
+          className="footer-brand-logo footer-brand-logo-mark"
+          src="/brands/brand-mark.png"
+          alt=""
+          width="1332"
+          height="1069"
+          decoding="async"
+        />
+        <img
+          className="footer-brand-logo footer-brand-logo-yunqi"
+          src="/brands/yunqi-data.png"
+          alt="云栖数据"
+          width="243"
+          height="71"
+          decoding="async"
+        />
+      </div>
+    </footer>
+  );
+}
+
+function ExportPage() {
+  const { message } = AntdApp.useApp();
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const login = async (values: { username: string; password: string }) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+      const payload = (await response.json()) as ApiError | { ok: true };
+      if (!response.ok) {
+        message.error((payload as ApiError).error || '登录失败');
+        return;
+      }
+      setLoggedIn(true);
+      message.success('验证成功');
+    } catch {
+      message.error('无法连接服务，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadCsv = async () => {
+    setDownloading(true);
+    try {
+      const response = await fetch('/api/admin/export.csv');
+      if (response.status === 401) {
+        setLoggedIn(false);
+        message.error('登录已过期，请重新验证');
+        return;
+      }
+      if (!response.ok) throw new Error('download failed');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = '活动报名名单.csv';
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      message.success('名单已开始下载');
+    } catch {
+      message.error('名单下载失败，请稍后重试');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const logout = async () => {
+    setLoggingOut(true);
+    try {
+      const response = await fetch('/api/admin/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('logout failed');
+      setLoggedIn(false);
+      message.success('已安全退出');
+    } catch {
+      message.error('退出失败，请重试；在公共设备上请直接关闭浏览器');
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  return (
+    <main className="site-shell export-shell">
+      <Card className="export-card" variant="borderless">
+        <div className="export-heading">
+          <FileProtectOutlined className="export-icon" aria-hidden="true" />
+          <h1>报名名单导出</h1>
+          <p>此入口仅用于主办方下载加密存储的报名名单。</p>
+        </div>
+        {loggedIn ? (
+          <Space orientation="vertical" size={14} style={{ width: '100%' }}>
+            <Button
+              type="primary"
+              size="large"
+              block
+              icon={<DownloadOutlined />}
+              loading={downloading}
+              disabled={downloading || loggingOut}
+              onClick={downloadCsv}
+            >
+              下载 CSV 名单
+            </Button>
+            <Button
+              size="large"
+              block
+              icon={<LogoutOutlined />}
+              loading={loggingOut}
+              disabled={downloading || loggingOut}
+              onClick={logout}
+            >
+              退出登录
+            </Button>
+          </Space>
+        ) : (
+          <Form layout="vertical" size="large" onFinish={login}>
+            <Form.Item label="账号" name="username" rules={[{ required: true, message: '请输入账号' }]}>
+              <Input prefix={<LockOutlined />} autoComplete="username" placeholder="请输入管理账号" />
+            </Form.Item>
+            <Form.Item label="密码" name="password" rules={[{ required: true, message: '请输入密码' }]}>
+              <Input.Password autoComplete="current-password" placeholder="请输入管理密码" />
+            </Form.Item>
+            <Button type="primary" htmlType="submit" block loading={loading} disabled={loading}>
+              验证并进入
+            </Button>
+          </Form>
+        )}
+        <p className="export-security-note">
+          名单含敏感个人信息。请仅在受控设备下载，并妥善保存、及时清理。
+        </p>
+        <Typography.Link href="/">返回报名页</Typography.Link>
+      </Card>
+    </main>
+  );
+}
+
+export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  return path === '/export' ? <ExportPage /> : <RegistrationPage />;
+}

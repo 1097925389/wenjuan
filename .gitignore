@@ -1,0 +1,14 @@
+node_modules/
+dist/
+server-dist/
+coverage/
+.env
+.env.*
+!.env.example
+data/*.json
+data/*.tmp
+data/*.bak
+.smoke-data/
+npm-debug.log*
+*.log
+.DS_Store

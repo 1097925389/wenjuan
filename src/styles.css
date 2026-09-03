@@ -1,0 +1,420 @@
+:root {
+  font-family: Inter, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif;
+  color: #1d3448;
+  background: #f3f6f9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: #f3f6f9;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  font-size: 16px;
+  background: #f3f6f9;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.site-shell {
+  position: relative;
+  min-height: 100vh;
+  padding:
+    max(28px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(56px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 720px);
+  margin: 0 auto;
+}
+
+.event-header {
+  position: relative;
+  margin-bottom: 18px;
+  padding: 24px 28px 28px;
+  color: #1d3448;
+  background: #fff;
+  border: 1px solid #d9e3eb;
+  border-top: 4px solid #1683c7;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(34, 63, 84, 0.08);
+}
+
+.event-kicker {
+  margin: 0 0 9px;
+  color: #1683c7;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.event-title {
+  max-width: 620px;
+  margin: 0;
+  color: #18374f;
+  font-size: clamp(25px, 4.5vw, 34px);
+  line-height: 1.38;
+  letter-spacing: -0.015em;
+}
+
+.event-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  color: #62788a;
+  font-size: 16px;
+}
+
+.form-card.ant-card,
+.export-card.ant-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #d9e3eb;
+  box-shadow: 0 8px 24px rgba(34, 63, 84, 0.07);
+}
+
+.form-card .ant-card-body,
+.export-card .ant-card-body {
+  padding: 28px;
+}
+
+.form-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e6f1f7;
+}
+
+.form-intro h2,
+.export-heading h1 {
+  margin: 0 0 6px;
+  color: #18374f;
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.form-intro p,
+.export-heading p {
+  margin: 0;
+  color: #697c8c;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.required-note {
+  flex: none;
+  padding: 5px 10px;
+  color: #1678b6;
+  font-size: 13px;
+  font-weight: 650;
+  background: #edf6fb;
+  border-radius: 6px;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 4px 0 18px;
+  color: #176f9f;
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.section-label::before {
+  width: 4px;
+  height: 18px;
+  background: #1683c7;
+  border-radius: 2px;
+  content: '';
+}
+
+.privacy-hint {
+  margin: -4px 0 22px;
+  padding: 12px 14px;
+  color: #516c7f;
+  font-size: 16px;
+  line-height: 1.65;
+  background: #f3f8fb;
+  border: 1px solid #dbe7ee;
+  border-radius: 8px;
+}
+
+.family-panel {
+  margin: 4px 0 24px;
+  padding: 16px;
+  background: #f6f9fb;
+  border: 1px solid #dce6ed;
+  border-radius: 10px;
+}
+
+.choice-radio-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+}
+
+.choice-radio-group .ant-radio-button-wrapper {
+  height: 46px;
+  padding-inline: 18px;
+  line-height: 44px;
+  text-align: center;
+}
+
+.choice-radio-group .ant-radio-button-wrapper:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.choice-radio-group .ant-radio-button-wrapper:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.family-item {
+  position: relative;
+  margin-bottom: 14px;
+  padding: 16px 14px 4px;
+  background: #fff;
+  border: 1px solid #e0edf4;
+  border-radius: 8px;
+}
+
+.family-item-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: #3e627b;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.family-item .ant-form-item {
+  margin-bottom: 14px;
+}
+
+.add-family-button {
+  height: 44px;
+}
+
+.consent-box {
+  margin: 8px 0 24px;
+  padding: 15px;
+  background: #f7f9fb;
+  border: 1px solid #dce4ea;
+  border-radius: 8px;
+}
+
+.consent-box .ant-checkbox-wrapper {
+  align-items: flex-start;
+  color: #3f5f76;
+  line-height: 1.7;
+}
+
+.consent-box .ant-checkbox {
+  margin-top: 5px;
+}
+
+.consent-box .ant-form-item {
+  margin-bottom: 0;
+}
+
+.consent-box .ant-form-item-explain-error {
+  margin-top: 8px;
+}
+
+.submit-button {
+  height: 50px;
+  font-size: 17px;
+}
+
+.result-card .ant-result {
+  padding: 24px 6px 8px;
+}
+
+.result-summary {
+  width: min(100%, 420px);
+  margin: 0 auto;
+  padding: 14px 16px;
+  color: #4d6a80;
+  text-align: left;
+  background: #f4f8fa;
+  border: 1px solid #dce6ec;
+  border-radius: 8px;
+}
+
+.result-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 5px 0;
+  font-size: 16px;
+}
+
+.result-summary-row strong {
+  color: #173f5c;
+  text-align: right;
+}
+
+.page-footer {
+  margin: 22px 0 0;
+}
+
+.page-footer-note {
+  margin: 0;
+  color: #718290;
+  font-size: 16px;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.footer-brands {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  margin-top: 18px;
+  padding: 18px 8px 0;
+  border-top: 1px solid #dce4ea;
+}
+
+.footer-brand-logo {
+  display: block;
+  flex: none;
+  object-fit: contain;
+}
+
+.footer-brand-logo-mark {
+  width: 60px;
+  height: auto;
+}
+
+.footer-brand-logo-yunqi {
+  width: 140px;
+  height: auto;
+}
+
+.export-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.export-card {
+  width: min(100%, 480px);
+}
+
+.export-heading {
+  margin-bottom: 24px;
+}
+
+.export-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 16px;
+  color: #1683c7;
+  font-size: 24px;
+  background: #edf6fb;
+  border: 1px solid #d5e7f1;
+  border-radius: 10px;
+  place-items: center;
+}
+
+.export-security-note {
+  margin-top: 18px;
+  color: #73889a;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+@media (max-width: 560px) {
+  .site-shell {
+    padding:
+      max(12px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      max(36px, env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .event-header {
+    margin-bottom: 10px;
+    padding: 18px 18px 22px;
+    border-radius: 12px;
+  }
+
+  .event-title {
+    font-size: 25px;
+  }
+
+  .form-card.ant-card,
+  .export-card.ant-card {
+    border-radius: 12px;
+  }
+
+  .form-card .ant-card-body,
+  .export-card .ant-card-body {
+    padding: 21px 17px;
+  }
+
+  .form-intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .family-panel {
+    padding: 12px;
+  }
+
+  .family-item {
+    padding: 14px 12px 2px;
+  }
+
+  .footer-brands {
+    min-height: 56px;
+    padding-inline: 4px;
+  }
+
+  .footer-brand-logo-mark {
+    width: 50px;
+  }
+
+  .footer-brand-logo-yunqi {
+    width: 122px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
