@@ -15,14 +15,23 @@ import {
 } from 'antd';
 import type { FormInstance, FormProps } from 'antd';
 import {
+  BankOutlined,
+  CalendarOutlined,
   DeleteOutlined,
   DownloadOutlined,
+  EditOutlined,
   FileProtectOutlined,
+  IdcardOutlined,
   LockOutlined,
   LogoutOutlined,
+  PhoneOutlined,
   PlusOutlined,
+  RestOutlined,
   SafetyCertificateOutlined,
   SendOutlined,
+  SolutionOutlined,
+  TeamOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import {
   EVENT_TITLE,
@@ -71,7 +80,7 @@ const textRequired = (label: string, max: number) => [
 function EventHeader() {
   return (
     <header className="event-header">
-      <p className="event-kicker">活动报名</p>
+      <p className="event-kicker"><CalendarOutlined aria-hidden="true" /> 活动报名</p>
       <h1 className="event-title">{EVENT_TITLE}</h1>
       <p className="event-subtitle">
         <SafetyCertificateOutlined aria-hidden="true" />
@@ -337,9 +346,9 @@ export function RegistrationPage({
             requiredMark
             size="large"
           >
-            <div className="section-label">个人信息</div>
+            <div className="section-label"><UserOutlined aria-hidden="true" />个人信息</div>
             <Form.Item label="姓名" name="name" rules={textRequired('姓名', 50)}>
-              <Input placeholder="请输入本人姓名" autoComplete="name" maxLength={50} />
+              <Input prefix={<UserOutlined />} placeholder="请输入本人姓名" autoComplete="name" maxLength={50} />
             </Form.Item>
 
             <Form.Item
@@ -357,6 +366,7 @@ export function RegistrationPage({
               ]}
             >
               <Input
+                prefix={<PhoneOutlined />}
                 placeholder="请输入11位大陆手机号"
                 type="tel"
                 inputMode="numeric"
@@ -366,11 +376,11 @@ export function RegistrationPage({
             </Form.Item>
 
             <Form.Item label="单位" name="organization" rules={textRequired('单位', 100)}>
-              <Input placeholder="请输入单位全称" autoComplete="organization" maxLength={100} />
+              <Input prefix={<BankOutlined />} placeholder="请输入单位全称" autoComplete="organization" maxLength={100} />
             </Form.Item>
 
             <Form.Item label="职务" name="jobTitle" rules={textRequired('职务', 50)}>
-              <Input placeholder="请输入职务" autoComplete="organization-title" maxLength={50} />
+              <Input prefix={<SolutionOutlined />} placeholder="请输入职务" autoComplete="organization-title" maxLength={50} />
             </Form.Item>
 
             <Form.Item
@@ -389,6 +399,7 @@ export function RegistrationPage({
               ]}
             >
               <Input
+                prefix={<IdcardOutlined />}
                 placeholder="用于保险及入住办理"
                 autoComplete="off"
                 maxLength={18}
@@ -400,7 +411,7 @@ export function RegistrationPage({
               <SafetyCertificateOutlined /> 身份证信息仅用于本次活动保险及入住办理，请确认内容准确。
             </div>
 
-            <div className="section-label">同行与住宿</div>
+            <div className="section-label"><TeamOutlined aria-hidden="true" />同行与住宿</div>
             <Form.Item
               label="是否携带家属"
               name="hasFamily"
@@ -450,6 +461,7 @@ export function RegistrationPage({
                             rules={textRequired('家属姓名', 50)}
                           >
                             <Input
+                              prefix={<UserOutlined />}
                               placeholder="请输入家属姓名"
                               autoComplete="off"
                               maxLength={50}
@@ -462,6 +474,7 @@ export function RegistrationPage({
                             rules={familyIdRules(index)}
                           >
                             <Input
+                              prefix={<IdcardOutlined />}
                               placeholder="请输入18位身份证号"
                               autoComplete="off"
                               maxLength={18}
@@ -493,13 +506,13 @@ export function RegistrationPage({
               rules={[{ required: true, message: '请选择房型' }]}
             >
               <Radio.Group className="choice-radio-group">
-                <Radio.Button value="standard">标间</Radio.Button>
-                <Radio.Button value="single">单间</Radio.Button>
+                <Radio.Button value="standard"><RestOutlined />标间</Radio.Button>
+                <Radio.Button value="single"><RestOutlined />单间</Radio.Button>
               </Radio.Group>
             </Form.Item>
 
             <Divider />
-            <div className="section-label">补充信息</div>
+            <div className="section-label"><EditOutlined aria-hidden="true" />补充信息</div>
             <Form.Item label="其他需求" name="otherNeeds" rules={[{ max: 500, message: '其他需求不能超过500个字符' }]}>
               <Input.TextArea
                 placeholder="如有饮食、出行或其他安排需求，请在此说明（选填）"
