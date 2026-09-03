@@ -54,7 +54,7 @@ export function createApp(config: AppConfig, store: RegistrationStore) {
         width: 1024,
         margin: 4,
         errorCorrectionLevel: 'H',
-        color: { dark: '#075985', light: '#ffffff' },
+        color: { dark: '#144bbb', light: '#ffffff' },
       }).catch((error) => {
         qrImagePromise = null;
         throw error;

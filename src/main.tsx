@@ -11,12 +11,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       locale={zhCN}
       theme={{
         token: {
-          colorPrimary: '#1683c7',
-          colorInfo: '#1683c7',
+          colorPrimary: '#135dd2',
+          colorInfo: '#135dd2',
           colorSuccess: '#0fba81',
-          colorText: '#1d3448',
-          colorTextSecondary: '#647687',
-          colorBorder: '#d7e1e9',
+          colorText: '#183052',
+          colorTextSecondary: '#6b7f9d',
+          colorBorder: '#d7e3f5',
+          colorBgLayout: '#f1f5fb',
           borderRadius: 8,
           controlHeight: 46,
           fontSize: 16,
@@ -24,10 +25,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             "Inter, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif",
         },
         components: {
-          Button: { fontWeight: 650, primaryShadow: '0 4px 10px rgba(14, 116, 181, .16)' },
+          Button: { fontWeight: 650, primaryShadow: '0 4px 12px rgba(21, 75, 184, .24)' },
           Card: { borderRadiusLG: 14 },
           Form: { labelFontSize: 16 },
-          Input: { activeShadow: '0 0 0 3px rgba(14,165,233,.12)' },
+          Input: { activeShadow: '0 0 0 3px rgba(21, 94, 212, .14)' },
         },
       }}
     >

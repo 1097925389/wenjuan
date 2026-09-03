@@ -1,9 +1,20 @@
 :root {
   font-family: Inter, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif;
-  color: #1d3448;
-  background: #f3f6f9;
+  color: #183052;
+  background: #f1f5fb;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+
+  --brand-blue: #135dd2;
+  --brand-blue-light: #1566dc;
+  --brand-blue-dark: #144bbb;
+  --brand-blue-soft: #eaf2ff;
+  --brand-blue-faint: #f3f7ff;
+  --ink-strong: #183052;
+  --ink-body: #445d80;
+  --ink-muted: #6b7f9d;
+  --line-blue: #d7e3f5;
+  --page-blue: #f1f5fb;
 }
 
 * {
@@ -13,7 +24,7 @@
 html {
   min-width: 320px;
   min-height: 100%;
-  background: #f3f6f9;
+  background: var(--page-blue);
 }
 
 body {
@@ -21,7 +32,7 @@ body {
   min-height: 100vh;
   margin: 0;
   font-size: 16px;
-  background: #f3f6f9;
+  background: var(--page-blue);
 }
 
 button,
@@ -49,19 +60,44 @@ textarea {
 
 .event-header {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   margin-bottom: 18px;
   padding: 24px 28px 28px;
-  color: #1d3448;
-  background: #fff;
-  border: 1px solid #d9e3eb;
-  border-top: 4px solid #1683c7;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-blue-light) 0%, var(--brand-blue) 48%, var(--brand-blue-dark) 100%);
+  border: 0;
   border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(34, 63, 84, 0.08);
+  box-shadow: 0 12px 30px rgba(21, 75, 184, 0.2);
+}
+
+.event-header::before,
+.event-header::after {
+  position: absolute;
+  z-index: -1;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.event-header::before {
+  top: -92px;
+  right: -52px;
+  width: 210px;
+  height: 210px;
+}
+
+.event-header::after {
+  right: 22%;
+  bottom: -126px;
+  width: 200px;
+  height: 200px;
 }
 
 .event-kicker {
   margin: 0 0 9px;
-  color: #1683c7;
+  color: #eaf2ff;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -70,7 +106,7 @@ textarea {
 .event-title {
   max-width: 620px;
   margin: 0;
-  color: #18374f;
+  color: #fff;
   font-size: clamp(25px, 4.5vw, 34px);
   line-height: 1.38;
   letter-spacing: -0.015em;
@@ -81,7 +117,7 @@ textarea {
   align-items: center;
   gap: 8px;
   margin: 14px 0 0;
-  color: #62788a;
+  color: #e2efff;
   font-size: 16px;
 }
 
@@ -89,8 +125,8 @@ textarea {
 .export-card.ant-card {
   overflow: hidden;
   background: #fff;
-  border: 1px solid #d9e3eb;
-  box-shadow: 0 8px 24px rgba(34, 63, 84, 0.07);
+  border: 1px solid var(--line-blue);
+  box-shadow: 0 8px 24px rgba(26, 61, 111, 0.08);
 }
 
 .form-card .ant-card-body,
@@ -105,13 +141,13 @@ textarea {
   gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #e6f1f7;
+  border-bottom: 1px solid #e4ecf8;
 }
 
 .form-intro h2,
 .export-heading h1 {
   margin: 0 0 6px;
-  color: #18374f;
+  color: var(--ink-strong);
   font-size: 22px;
   line-height: 1.35;
 }
@@ -119,7 +155,7 @@ textarea {
 .form-intro p,
 .export-heading p {
   margin: 0;
-  color: #697c8c;
+  color: var(--ink-muted);
   font-size: 16px;
   line-height: 1.65;
 }
@@ -127,10 +163,10 @@ textarea {
 .required-note {
   flex: none;
   padding: 5px 10px;
-  color: #1678b6;
+  color: var(--brand-blue);
   font-size: 13px;
   font-weight: 650;
-  background: #edf6fb;
+  background: var(--brand-blue-soft);
   border-radius: 6px;
 }
 
@@ -139,7 +175,7 @@ textarea {
   align-items: center;
   gap: 9px;
   margin: 4px 0 18px;
-  color: #176f9f;
+  color: #174fae;
   font-size: 16px;
   font-weight: 750;
 }
@@ -147,7 +183,7 @@ textarea {
 .section-label::before {
   width: 4px;
   height: 18px;
-  background: #1683c7;
+  background: var(--brand-blue);
   border-radius: 2px;
   content: '';
 }
@@ -155,19 +191,19 @@ textarea {
 .privacy-hint {
   margin: -4px 0 22px;
   padding: 12px 14px;
-  color: #516c7f;
+  color: var(--ink-body);
   font-size: 16px;
   line-height: 1.65;
-  background: #f3f8fb;
-  border: 1px solid #dbe7ee;
+  background: var(--brand-blue-faint);
+  border: 1px solid #dce7f8;
   border-radius: 8px;
 }
 
 .family-panel {
   margin: 4px 0 24px;
   padding: 16px;
-  background: #f6f9fb;
-  border: 1px solid #dce6ed;
+  background: #f5f8fd;
+  border: 1px solid #dbe5f4;
   border-radius: 10px;
 }
 
@@ -197,7 +233,7 @@ textarea {
   margin-bottom: 14px;
   padding: 16px 14px 4px;
   background: #fff;
-  border: 1px solid #e0edf4;
+  border: 1px solid #dfe8f6;
   border-radius: 8px;
 }
 
@@ -206,7 +242,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-  color: #3e627b;
+  color: #3d587d;
   font-size: 16px;
   font-weight: 700;
 }
@@ -222,14 +258,14 @@ textarea {
 .consent-box {
   margin: 8px 0 24px;
   padding: 15px;
-  background: #f7f9fb;
-  border: 1px solid #dce4ea;
+  background: #f5f8fd;
+  border: 1px solid #dbe4f2;
   border-radius: 8px;
 }
 
 .consent-box .ant-checkbox-wrapper {
   align-items: flex-start;
-  color: #3f5f76;
+  color: #3f587a;
   line-height: 1.7;
 }
 
@@ -258,10 +294,10 @@ textarea {
   width: min(100%, 420px);
   margin: 0 auto;
   padding: 14px 16px;
-  color: #4d6a80;
+  color: var(--ink-body);
   text-align: left;
-  background: #f4f8fa;
-  border: 1px solid #dce6ec;
+  background: var(--brand-blue-faint);
+  border: 1px solid #dce6f5;
   border-radius: 8px;
 }
 
@@ -274,7 +310,7 @@ textarea {
 }
 
 .result-summary-row strong {
-  color: #173f5c;
+  color: #173c75;
   text-align: right;
 }
 
@@ -284,7 +320,7 @@ textarea {
 
 .page-footer-note {
   margin: 0;
-  color: #718290;
+  color: var(--ink-muted);
   font-size: 16px;
   line-height: 1.65;
   text-align: center;
@@ -297,7 +333,7 @@ textarea {
   min-height: 64px;
   margin-top: 18px;
   padding: 18px 8px 0;
-  border-top: 1px solid #dce4ea;
+  border-top: 1px solid #d9e3f2;
 }
 
 .footer-brand-logo {
@@ -336,17 +372,17 @@ textarea {
   width: 52px;
   height: 52px;
   margin-bottom: 16px;
-  color: #1683c7;
+  color: var(--brand-blue);
   font-size: 24px;
-  background: #edf6fb;
-  border: 1px solid #d5e7f1;
+  background: var(--brand-blue-soft);
+  border: 1px solid #d4e3f8;
   border-radius: 10px;
   place-items: center;
 }
 
 .export-security-note {
   margin-top: 18px;
-  color: #73889a;
+  color: var(--ink-muted);
   font-size: 16px;
   line-height: 1.65;
 }
