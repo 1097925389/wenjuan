@@ -11,24 +11,24 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       locale={zhCN}
       theme={{
         token: {
-          colorPrimary: '#135dd2',
-          colorInfo: '#135dd2',
+          colorPrimary: '#145cd1',
+          colorInfo: '#145cd1',
           colorSuccess: '#0fba81',
-          colorText: '#183052',
-          colorTextSecondary: '#6b7f9d',
-          colorBorder: '#d7e3f5',
-          colorBgLayout: '#f1f5fb',
-          borderRadius: 8,
+          colorText: '#1a1a2e',
+          colorTextSecondary: '#5a6a7e',
+          colorBorder: '#dce3ef',
+          colorBgLayout: '#f2f5fa',
+          borderRadius: 12,
           controlHeight: 46,
-          fontSize: 16,
+          fontSize: 15,
           fontFamily:
-            "Inter, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif",
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif",
         },
         components: {
-          Button: { fontWeight: 650, primaryShadow: '0 4px 12px rgba(21, 75, 184, .24)' },
-          Card: { borderRadiusLG: 14 },
-          Form: { labelFontSize: 16 },
-          Input: { activeShadow: '0 0 0 3px rgba(21, 94, 212, .14)' },
+          Button: { fontWeight: 600, primaryShadow: '0 6px 20px rgba(20, 92, 209, .4)' },
+          Card: { borderRadiusLG: 16 },
+          Form: { labelFontSize: 14 },
+          Input: { activeShadow: '0 0 0 3px rgba(20, 92, 209, .15)' },
         },
       }}
     >

@@ -46,11 +46,8 @@ describe('移动端报名表单', () => {
     renderApp();
 
     expect(document.querySelector('.event-header img')).not.toBeInTheDocument();
-    expect(document.querySelector('.footer-brands img:first-child')).toHaveAttribute(
-      'src',
-      '/brands/brand-mark.png',
-    );
-    expect(screen.getByAltText('云栖数据')).toBeInTheDocument();
+    expect(document.querySelector('.page-footer img')).not.toBeInTheDocument();
+    expect(screen.getByText('本页面仅用于本次会议嘉宾信息登记')).toBeInTheDocument();
     expect(screen.queryByText('家属 1')).not.toBeInTheDocument();
     fireEvent.click(screen.getByText('是'));
     expect(await screen.findByText('家属 1')).toBeInTheDocument();
