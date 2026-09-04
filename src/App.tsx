@@ -4,12 +4,12 @@ import {
   Button,
   Card,
   Checkbox,
-  Divider,
   Form,
   Input,
   Radio,
   Result,
   Space,
+  Switch,
   Tooltip,
   Typography,
 } from 'antd';
@@ -17,20 +17,23 @@ import type { FormInstance, FormProps } from 'antd';
 import {
   BankOutlined,
   CalendarOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
   DeleteOutlined,
   DownloadOutlined,
-  EditOutlined,
+  EnvironmentOutlined,
   FileProtectOutlined,
+  FormOutlined,
+  HomeOutlined,
   IdcardOutlined,
   LockOutlined,
   LogoutOutlined,
+  MailOutlined,
   PhoneOutlined,
   PlusOutlined,
-  RestOutlined,
+  PushpinOutlined,
   SafetyCertificateOutlined,
-  SendOutlined,
   SolutionOutlined,
-  TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import {
@@ -67,7 +70,9 @@ async function submitRegistrationRequest(data: RegistrationInput): Promise<Regis
 }
 
 const INITIAL_VALUES: Partial<FormValues> = {
+  hasFamily: false,
   familyMembers: [],
+  roomType: 'standard',
   otherNeeds: '',
   consent: false,
 };
@@ -77,16 +82,84 @@ const textRequired = (label: string, max: number) => [
   { max, message: `${label}不能超过${max}个字符` },
 ];
 
-function EventHeader() {
+function TopNavbar() {
   return (
-    <header className="event-header">
-      <p className="event-kicker"><CalendarOutlined aria-hidden="true" /> 活动报名</p>
-      <h1 className="event-title">{EVENT_TITLE}</h1>
-      <p className="event-subtitle">
-        <SafetyCertificateOutlined aria-hidden="true" />
-        请准确填写报名、保险及入住所需信息
-      </p>
+    <header className="navbar">
+      <div className="navbar-heading">
+        <span className="navbar-emblem" aria-hidden="true"><CalendarOutlined /></span>
+        <div>
+          <div className="navbar-title">会议信息登记</div>
+          <div className="navbar-sub">AI 装备制造交流会 · 镇安</div>
+        </div>
+      </div>
+      <span className="navbar-tag">嘉宾登记</span>
     </header>
+  );
+}
+
+function BedIcon() {
+  return (
+    <svg
+      className="bed-icon"
+      viewBox="0 0 512 512"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M32 32C14.3 32 0 46.3 0 64v352c0 17.7 14.3 32 32 32s32-14.3 32-32v-32h384v32c0 17.7 14.3 32 32 32s32-14.3 32-32V256c0-53-43-96-96-96H224c-17.7 0-32 14.3-32 32v128H64V64c0-17.7-14.3-32-32-32zm80 128a48 48 0 1 0 0-96 48 48 0 1 0 0 96z" />
+    </svg>
+  );
+}
+
+function InvitationCard() {
+  return (
+    <section className="invitation-card" aria-labelledby="event-title">
+      <div className="invitation-header">
+        <span className="invitation-divider" aria-hidden="true" />
+        <span className="invitation-badge"><MailOutlined aria-hidden="true" />会议邀请</span>
+        <span className="invitation-divider" aria-hidden="true" />
+      </div>
+
+      <h1 className="invitation-title" id="event-title" aria-label={EVENT_TITLE}>
+        <span className="invitation-title-slogan">知藏于文·智驭全局</span>
+        <span className="invitation-title-name">
+          人工智能赋能智能制造行业交流会
+        </span>
+      </h1>
+
+      <p className="invitation-greeting">
+        <UserOutlined aria-hidden="true" />
+        尊敬的嘉宾，诚邀您拨冗莅临，共探数智化转型新路径
+      </p>
+
+      <div className="invitation-meta">
+        <div className="invitation-meta-item">
+          <CalendarOutlined aria-hidden="true" />
+          <strong>日期</strong>
+          <span className="invitation-meta-value">2026年9月12日 – 9月13日</span>
+        </div>
+        <div className="invitation-meta-item">
+          <ClockCircleOutlined aria-hidden="true" />
+          <strong>时间</strong>
+          <span className="invitation-meta-value invitation-time-value">
+            <span>09:00 – 20:30（12日）</span>
+            <span>09:00 – 13:30（13日）</span>
+          </span>
+        </div>
+        <div className="invitation-meta-item">
+          <PushpinOutlined aria-hidden="true" />
+          <strong>地点</strong>
+          <span className="invitation-meta-value">镇安缤悦大酒店 <span className="highlight">主会场</span></span>
+        </div>
+        <div className="invitation-meta-item">
+          <EnvironmentOutlined aria-hidden="true" />
+          <strong>集合点</strong>
+          <span className="invitation-meta-value">延长壳牌西安金陶长安南路加油站（地铁2号线电视塔E1口南200m）</span>
+        </div>
+      </div>
+
+    </section>
   );
 }
 
@@ -289,9 +362,10 @@ export function RegistrationPage({
 
   if (result) {
     return (
-      <main className="site-shell">
-        <div className="page-wrap">
-          <EventHeader />
+      <div className="registration-page">
+        <TopNavbar />
+        <main className="page-content result-content">
+          <InvitationCard />
           <Card className="form-card result-card" variant="borderless">
             <Result
               status="success"
@@ -319,36 +393,33 @@ export function RegistrationPage({
             </Result>
           </Card>
           <PageFooter />
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
   return (
-    <main className="site-shell">
-      <div className="page-wrap">
-        <EventHeader />
-        <Card className="form-card" variant="borderless">
-          <div className="form-intro">
-            <div>
-              <h2>参会信息登记</h2>
-              <p>请按证件信息如实填写，带 * 的项目为必填项。</p>
+    <div className="registration-page">
+      <TopNavbar />
+      <main className="page-content">
+        <InvitationCard />
+        <Form<FormValues>
+          className="registration-form"
+          form={form}
+          layout="vertical"
+          initialValues={initialValues}
+          onFinish={onFinish}
+          scrollToFirstError={{ behavior: 'smooth', block: 'center' }}
+          requiredMark
+          size="large"
+        >
+          <section className="form-section-card" aria-labelledby="basic-info-title">
+            <div className="card-section-title" id="basic-info-title">
+              <UserOutlined aria-hidden="true" />基本信息
+              <span className="section-badge">必填</span>
             </div>
-            <span className="required-note">预计 3 分钟</span>
-          </div>
-
-          <Form<FormValues>
-            form={form}
-            layout="vertical"
-            initialValues={initialValues}
-            onFinish={onFinish}
-            scrollToFirstError={{ behavior: 'smooth', block: 'center' }}
-            requiredMark
-            size="large"
-          >
-            <div className="section-label"><UserOutlined aria-hidden="true" />个人信息</div>
             <Form.Item label="姓名" name="name" rules={textRequired('姓名', 50)}>
-              <Input prefix={<UserOutlined />} placeholder="请输入本人姓名" autoComplete="name" maxLength={50} />
+              <Input prefix={<UserOutlined />} placeholder="请输入您的姓名" autoComplete="name" maxLength={50} />
             </Form.Item>
 
             <Form.Item
@@ -367,7 +438,7 @@ export function RegistrationPage({
             >
               <Input
                 prefix={<PhoneOutlined />}
-                placeholder="请输入11位大陆手机号"
+                placeholder="请输入手机号"
                 type="tel"
                 inputMode="numeric"
                 autoComplete="tel"
@@ -376,7 +447,7 @@ export function RegistrationPage({
             </Form.Item>
 
             <Form.Item label="单位" name="organization" rules={textRequired('单位', 100)}>
-              <Input prefix={<BankOutlined />} placeholder="请输入单位全称" autoComplete="organization" maxLength={100} />
+              <Input prefix={<BankOutlined />} placeholder="请输入您所在单位" autoComplete="organization" maxLength={100} />
             </Form.Item>
 
             <Form.Item label="职务" name="jobTitle" rules={textRequired('职务', 50)}>
@@ -384,7 +455,11 @@ export function RegistrationPage({
             </Form.Item>
 
             <Form.Item
-              label="身份证号"
+              label={(
+                <span>
+                  身份证号 <span className="id-purpose">（用于<span className="id-insurance">保险</span>及入住）</span>
+                </span>
+              )}
               name="idNumber"
               normalize={(value) => normalizeIdCard(value ?? '')}
               rules={[
@@ -400,7 +475,7 @@ export function RegistrationPage({
             >
               <Input
                 prefix={<IdcardOutlined />}
-                placeholder="用于保险及入住办理"
+                placeholder="请输入18位身份证号"
                 autoComplete="off"
                 maxLength={18}
                 onBlur={revalidateIdentityFields}
@@ -408,13 +483,21 @@ export function RegistrationPage({
             </Form.Item>
 
             <div className="privacy-hint">
-              <SafetyCertificateOutlined /> 身份证信息仅用于本次活动保险及入住办理，请确认内容准确。
+              <SafetyCertificateOutlined /> 身份证信息仅用于本次活动<span className="id-insurance">保险</span>及入住办理，请确认内容准确。
             </div>
+          </section>
 
-            <div className="section-label"><TeamOutlined aria-hidden="true" />同行与住宿</div>
+          <section className="form-section-card" aria-labelledby="stay-info-title">
+            <div className="card-section-title" id="stay-info-title">
+              <HomeOutlined aria-hidden="true" />住宿与家属
+              <span className="section-badge">必填</span>
+            </div>
             <Form.Item
+              className="family-choice-item"
+              layout="horizontal"
               label="是否携带家属"
               name="hasFamily"
+              valuePropName="checked"
               required
               rules={[
                 {
@@ -424,13 +507,12 @@ export function RegistrationPage({
                 },
               ]}
             >
-              <Radio.Group
-                className="choice-radio-group"
-                onChange={(event) => handleFamilyChoice(event.target.value)}
-              >
-                <Radio.Button value={false}>否</Radio.Button>
-                <Radio.Button value={true}>是</Radio.Button>
-              </Radio.Group>
+              <Switch
+                className="family-switch"
+                checkedChildren="是"
+                unCheckedChildren="否"
+                onChange={handleFamilyChoice}
+              />
             </Form.Item>
 
             <Form.List name="familyMembers">
@@ -505,23 +587,35 @@ export function RegistrationPage({
               name="roomType"
               rules={[{ required: true, message: '请选择房型' }]}
             >
-              <Radio.Group className="choice-radio-group">
-                <Radio.Button value="standard"><RestOutlined />标间</Radio.Button>
-                <Radio.Button value="single"><RestOutlined />单间</Radio.Button>
+              <Radio.Group className="room-radio-group">
+                <Radio.Button value="standard">
+                  <span className="room-bed-icons" aria-hidden="true"><BedIcon /><BedIcon /></span>
+                  <span>标间</span>
+                </Radio.Button>
+                <Radio.Button value="single">
+                  <span className="room-bed-icons room-bed-icons-single" aria-hidden="true"><BedIcon /></span>
+                  <span>单间</span>
+                </Radio.Button>
               </Radio.Group>
             </Form.Item>
+          </section>
 
-            <Divider />
-            <div className="section-label"><EditOutlined aria-hidden="true" />补充信息</div>
+          <section className="form-section-card other-needs-card" aria-labelledby="other-needs-title">
+            <div className="card-section-title" id="other-needs-title">
+              <FormOutlined aria-hidden="true" />其他需求
+              <span className="section-badge optional-badge">选填</span>
+            </div>
             <Form.Item label="其他需求" name="otherNeeds" rules={[{ max: 500, message: '其他需求不能超过500个字符' }]}>
               <Input.TextArea
-                placeholder="如有饮食、出行或其他安排需求，请在此说明（选填）"
+                placeholder="如有特殊饮食、住宿等需求，请在此注明…"
                 rows={4}
                 maxLength={500}
                 showCount
               />
             </Form.Item>
+          </section>
 
+          <section className="form-section-card consent-card">
             <div className="consent-box">
               <Form.Item
                 name="consent"
@@ -535,52 +629,40 @@ export function RegistrationPage({
                 ]}
               >
                 <Checkbox>
-                  我已确认以上信息无误，并同意主办方为本次活动报名、保险及入住安排收集和使用本人及随行家属信息；我已取得随行家属授权。
+                  <strong>确认信息无误</strong> — 我已核对所填信息真实、准确，并同意主办方为本次活动报名、保险及入住安排收集和使用本人及随行家属信息。
                 </Checkbox>
               </Form.Item>
             </div>
+          </section>
 
+          <PageFooter />
+          <div className="submit-area">
             <Button
               className="submit-button"
               type="primary"
               htmlType="submit"
               block
-              icon={<SendOutlined />}
+              icon={<CheckCircleOutlined />}
               loading={submitting}
               disabled={submitting}
             >
-              {submitting ? '正在安全提交…' : '确认提交'}
+              {submitting ? '正在安全提交…' : <><span className="visually-hidden">确认提交</span>提交登记</>}
             </Button>
-          </Form>
-        </Card>
-        <PageFooter />
-      </div>
-    </main>
+          </div>
+        </Form>
+      </main>
+    </div>
   );
 }
 
 function PageFooter() {
   return (
     <footer className="page-footer">
-      <p className="page-footer-note">请勿在公共设备上保存或转发本人及家属证件信息。</p>
-      <div className="footer-brands">
-        <img
-          className="footer-brand-logo footer-brand-logo-mark"
-          src="/brands/brand-mark.png"
-          alt=""
-          width="1332"
-          height="1069"
-          decoding="async"
-        />
-        <img
-          className="footer-brand-logo footer-brand-logo-yunqi"
-          src="/brands/yunqi-data.png"
-          alt="云栖数据"
-          width="243"
-          height="71"
-          decoding="async"
-        />
+      <div className="footer-copy">
+        <p>本页面仅用于本次会议嘉宾信息登记</p>
+        <p>请勿在公共设备上保存或转发本人及家属证件信息</p>
       </div>
+      <p className="footer-owner">会议会务组 · 2026</p>
     </footer>
   );
 }

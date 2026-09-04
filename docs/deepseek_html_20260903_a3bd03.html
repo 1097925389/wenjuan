@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>会议邀请 · 信息登记</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ===== CSS Variables – 主色调 #145CD1 ===== */
+        :root {
+            --primary-dark: #145CD1;
+            --primary-blue: #145CD1;
+            --primary-light: #e6edf8;
+            --bg-page: #f2f5fa;
+            --card-white: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #5a6a7e;
+            --text-light: #8a9aaa;
+            --border-color: #dce3ef;
+            --shadow: 0 4px 20px rgba(20, 92, 209, 0.12);
+            --radius: 16px;
+            --safe-top: env(safe-area-inset-top, 20px);
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        /* ===== Reset & Base ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            padding-bottom: calc(100px + var(--safe-bottom));
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== 顶部导航 ===== */
+        .navbar {
+            background: var(--primary-dark);
+            padding: 16px 20px 14px;
+            padding-top: calc(16px + var(--safe-top));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(20, 92, 209, 0.35);
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-back {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 20px;
+            cursor: default;
+        }
+
+        .navbar-title {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-sub {
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        .navbar-right {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        /* ===== 邀请函卡片 (全新设计) ===== */
+        .invitation-card {
+            margin: 16px 16px 12px;
+            background: var(--card-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px 20px 20px;
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid var(--primary-blue);
+        }
+
+        /* 装饰性背景波纹 */
+        .invitation-card::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(20, 92, 209, 0.04) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .invitation-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(20, 92, 209, 0.03) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .invitation-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .invitation-badge {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--primary-blue);
+            background: var(--primary-light);
+            padding: 4px 14px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .invitation-badge i {
+            margin-right: 6px;
+        }
+
+        .invitation-divider {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--primary-blue), transparent);
+            margin-left: 12px;
+            opacity: 0.3;
+        }
+
+        .invitation-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.3;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .invitation-title small {
+            display: block;
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .invitation-greeting {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+            border-left: 3px solid var(--primary-blue);
+            padding-left: 12px;
+            background: rgba(20, 92, 209, 0.02);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .invitation-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .invitation-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .invitation-meta-item i {
+            width: 20px;
+            color: var(--primary-blue);
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .invitation-meta-item strong {
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-right: 4px;
+        }
+
+        .invitation-meta-item .highlight {
+            background: var(--primary-light);
+            padding: 2px 10px;
+            border-radius: 12px;
+            color: var(--primary-blue);
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .invitation-address {
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #f7f9fc;
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+            border: 1px solid #eef2f7;
+        }
+
+        .invitation-address i {
+            color: var(--primary-blue);
+            font-size: 16px;
+            margin-top: 1px;
+        }
+
+        .invitation-address span {
+            flex: 1;
+        }
+
+        /* 装饰小点 */
+        .invitation-dots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 14px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .invitation-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            opacity: 0.25;
+        }
+
+        .invitation-dots span:nth-child(2) {
+            opacity: 0.5;
+        }
+        .invitation-dots span:nth-child(3) {
+            opacity: 0.75;
+        }
+
+        /* ===== 表单容器 ===== */
+        .form-container {
+            flex: 1;
+            padding: 0 16px;
+        }
+
+        /* ===== Ant Design 风格卡片 ===== */
+        .ant-card {
+            background: var(--card-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px 18px 8px;
+            margin-bottom: 14px;
+            transition: box-shadow 0.2s;
+        }
+
+        .ant-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ant-card-title i {
+            color: var(--primary-blue);
+            font-size: 18px;
+        }
+
+        .ant-card-title .badge {
+            background: var(--primary-blue);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 0 10px;
+            border-radius: 20px;
+            line-height: 20px;
+            margin-left: auto;
+        }
+
+        /* ===== 表单项 ===== */
+        .ant-form-item {
+            margin-bottom: 18px;
+        }
+
+        .ant-form-item-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .ant-form-item-label .required {
+            color: #ff4d4f;
+            margin-left: 2px;
+            font-weight: 600;
+        }
+
+        .ant-form-item-label .optional {
+            color: var(--text-light);
+            font-weight: 400;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        /* ===== 输入框 ===== */
+        .ant-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f7f9fc;
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            padding: 0 14px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .ant-input-wrapper:focus-within {
+            background: #ffffff;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(20, 92, 209, 0.15);
+        }
+
+        .ant-input-wrapper .prefix-icon {
+            color: var(--text-light);
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .ant-input-wrapper .ant-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 12px 10px;
+            font-size: 15px;
+            color: var(--text-primary);
+            width: 100%;
+            font-weight: 400;
+        }
+
+        .ant-input-wrapper .ant-input::placeholder {
+            color: #b8c4d0;
+            font-weight: 300;
+            font-size: 14px;
+        }
+
+        .ant-input-wrapper .suffix-icon {
+            color: var(--text-light);
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+
+        .ant-input-wrapper.error {
+            border-color: #ff4d4f;
+            background: #fff2f0;
+        }
+
+        .ant-input-wrapper.error:focus-within {
+            box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.12);
+        }
+
+        .ant-form-item-error {
+            color: #ff4d4f;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ant-form-item-error.show {
+            display: flex;
+        }
+
+        /* ===== 文本域 ===== */
+        .ant-input-textarea {
+            background: #f7f9fc;
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            padding: 12px 14px;
+            width: 100%;
+            font-size: 15px;
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            transition: all 0.25s ease;
+            outline: none;
+        }
+
+        .ant-input-textarea:focus {
+            background: #ffffff;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(20, 92, 209, 0.15);
+        }
+
+        .ant-input-textarea::placeholder {
+            color: #b8c4d0;
+            font-weight: 300;
+        }
+
+        /* ===== 开关 (Ant Design 风格) ===== */
+        .ant-switch-group {
+            display: flex;
+            gap: 20px;
+            padding-top: 4px;
+        }
+
+        .ant-switch-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            color: var(--text-primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .ant-switch-option input[type="radio"] {
+            display: none;
+        }
+
+        .ant-switch-track {
+            width: 48px;
+            height: 28px;
+            background: #d9dee5;
+            border-radius: 14px;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .ant-switch-track .ant-switch-thumb {
+            width: 22px;
+            height: 22px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+        }
+
+        .ant-switch-option input[type="radio"]:checked+.ant-switch-track {
+            background: var(--primary-blue);
+        }
+
+        .ant-switch-option input[type="radio"]:checked+.ant-switch-track .ant-switch-thumb {
+            left: 23px;
+        }
+
+        .ant-switch-label {
+            font-weight: 400;
+        }
+
+        .ant-switch-option input[type="radio"]:checked~.ant-switch-label {
+            font-weight: 500;
+            color: var(--primary-blue);
+        }
+
+        /* ===== 家属条件显示 ===== */
+        .family-fields {
+            margin-top: 14px;
+            padding: 14px 0 4px 0;
+            border-top: 1.5px dashed #e8ecf1;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .family-fields.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .family-fields .ant-form-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ===== 房型选择 (卡片式) ===== */
+        .ant-radio-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 2px;
+        }
+
+        .ant-radio-card {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 8px;
+            text-align: center;
+            background: #f7f9fc;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            user-select: none;
+            position: relative;
+        }
+
+        .ant-radio-card i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+            color: var(--text-light);
+            transition: color 0.25s;
+        }
+
+        .ant-radio-card .room-desc {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .ant-radio-card.active {
+            background: var(--primary-light);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .ant-radio-card.active i {
+            color: var(--primary-blue);
+        }
+
+        .ant-radio-card input[type="radio"] {
+            display: none;
+        }
+
+        /* ===== 确认复选框 ===== */
+        .ant-checkbox-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            padding: 4px 0;
+            user-select: none;
+        }
+
+        .ant-checkbox-wrapper input[type="checkbox"] {
+            display: none;
+        }
+
+        .ant-checkbox-box {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d9dee5;
+            border-radius: 6px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            margin-top: 1px;
+            background: #fff;
+        }
+
+        .ant-checkbox-box i {
+            color: #fff;
+            font-size: 13px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease;
+        }
+
+        .ant-checkbox-wrapper input[type="checkbox"]:checked+.ant-checkbox-box {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .ant-checkbox-wrapper input[type="checkbox"]:checked+.ant-checkbox-box i {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .ant-checkbox-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .ant-checkbox-label strong {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* ===== 提交按钮 ===== */
+        .submit-area {
+            padding: 16px 16px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(242, 245, 250, 1) 60%, rgba(242, 245, 250, 0));
+            padding-bottom: calc(20px + var(--safe-bottom));
+            z-index: 50;
+        }
+
+        .ant-btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-blue);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(20, 92, 209, 0.40);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .ant-btn-primary:active {
+            transform: scale(0.97);
+            box-shadow: 0 3px 12px rgba(20, 92, 209, 0.30);
+        }
+
+        .ant-btn-primary:disabled {
+            opacity: 0.5;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .ant-btn-primary i {
+            font-size: 18px;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(0, 0, 0, 0.78);
+            color: #fff;
+            padding: 18px 28px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            text-align: center;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .toast i {
+            display: block;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .toast.success i {
+            color: #52c41a;
+        }
+        .toast.error i {
+            color: #ff4d4f;
+        }
+
+        /* ===== 辅助 ===== */
+        .mt-0 { margin-top: 0; }
+        .mb-0 { margin-bottom: 0; }
+        .text-center { text-align: center; }
+
+        @media (max-width: 380px) {
+            .invitation-title { font-size: 19px; }
+            .ant-radio-card { min-width: 60px; padding: 10px 6px; font-size: 13px; }
+            .ant-radio-card i { font-size: 17px; }
+        }
+
+        @media (min-width: 600px) {
+            body { max-width: 480px; margin: 0 auto; background: #e8ecf1; }
+            .submit-area { max-width: 480px; left: 50%; transform: translateX(-50%); }
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c1c9d4; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 顶部导航 ===== -->
+    <header class="navbar">
+        <div class="navbar-left">
+            <span class="navbar-back"><i class="fas fa-chevron-left"></i></span>
+            <div>
+                <div class="navbar-title">会议信息登记</div>
+                <div class="navbar-sub">AI 装备制造交流会 · 镇安</div>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <i class="fas fa-qrcode"></i>
+        </div>
+    </header>
+
+    <!-- ===== 邀请函卡片 (全新设计) ===== -->
+    <div class="invitation-card">
+        <div class="invitation-header">
+            <span class="invitation-badge"><i class="fas fa-envelope"></i> 邀请函</span>
+            <span class="invitation-divider"></span>
+        </div>
+
+        <div class="invitation-title">
+            人工智能 · 知识图谱 · 算力技术交流会
+            <small>装备制造行业创新应用研讨会</small>
+        </div>
+
+        <div class="invitation-greeting">
+            <i class="fas fa-user" style="margin-right:8px;color:var(--primary-blue);"></i> 尊敬的嘉宾，诚邀您拨冗莅临，共探数智化转型新路径
+        </div>
+
+        <div class="invitation-meta">
+            <div class="invitation-meta-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span><strong>日期</strong> 2026年9月12日 – 9月13日</span>
+            </div>
+            <div class="invitation-meta-item">
+                <i class="fas fa-clock"></i>
+                <span><strong>时间</strong> 09:00 – 20:30（12日） · 09:00 – 13:30（13日）</span>
+            </div>
+            <div class="invitation-meta-item">
+                <i class="fas fa-map-pin"></i>
+                <span><strong>地点</strong> 镇安缤悦大酒店 <span class="highlight">主会场</span></span>
+            </div>
+        </div>
+
+        <div class="invitation-address">
+            <i class="fas fa-location-dot"></i>
+            <span><strong>集合点</strong> 延长壳牌西安金陶长安南路加油站 (地铁2号线电视塔E1口南200m)</span>
+        </div>
+
+        <div class="invitation-dots">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <!-- ===== 表单 ===== -->
+    <div class="form-container" id="app">
+
+        <!-- ====== 基本信息 ====== -->
+        <div class="ant-card">
+            <div class="ant-card-title">
+                <i class="fas fa-user-circle"></i> 基本信息
+                <span class="badge">必填</span>
+            </div>
+
+            <!-- 姓名 -->
+            <div class="ant-form-item">
+                <label class="ant-form-item-label">
+                    姓名 <span class="required">*</span>
+                </label>
+                <div class="ant-input-wrapper" id="nameWrapper">
+                    <span class="prefix-icon"><i class="fas fa-user"></i></span>
+                    <input class="ant-input" id="name" type="text" placeholder="请输入您的姓名" maxlength="20" />
+                </div>
+                <div class="ant-form-item-error" id="nameError"><i class="fas fa-circle-exclamation"></i> 请输入姓名</div>
+            </div>
+
+            <!-- 手机号 -->
+            <div class="ant-form-item">
+                <label class="ant-form-item-label">
+                    手机号 <span class="required">*</span>
+                </label>
+                <div class="ant-input-wrapper" id="phoneWrapper">
+                    <span class="prefix-icon"><i class="fas fa-phone"></i></span>
+                    <input class="ant-input" id="phone" type="tel" placeholder="请输入手机号" maxlength="11" />
+                </div>
+                <div class="ant-form-item-error" id="phoneError"><i class="fas fa-circle-exclamation"></i> 请输入有效的手机号</div>
+            </div>
+
+            <!-- 单位 -->
+            <div class="ant-form-item">
+                <label class="ant-form-item-label">
+                    单位 <span class="required">*</span>
+                </label>
+                <div class="ant-input-wrapper" id="unitWrapper">
+                    <span class="prefix-icon"><i class="fas fa-building"></i></span>
+                    <input class="ant-input" id="unit" type="text" placeholder="请输入您所在单位" />
+                </div>
+                <div class="ant-form-item-error" id="unitError"><i class="fas fa-circle-exclamation"></i> 请输入单位名称</div>
+            </div>
+
+            <!-- 职务 -->
+            <div class="ant-form-item">
+                <label class="ant-form-item-label">
+                    职务 <span class="optional">(选填)</span>
+                </label>
+                <div class="ant-input-wrapper">
+                    <span class="prefix-icon"><i class="fas fa-briefcase"></i></span>
+                    <input class="ant-input" id="position" type="text" placeholder="请输入您的职务" />
+                </div>
+            </div>
+
+            <!-- 身份证号 -->
+            <div class="ant-form-item">
+                <label class="ant-form-item-label">
+                    身份证号 <span class="required">*</span>
+                    <span class="optional">(用于保险及入住)</span>
+                </label>
+                <div class="ant-input-wrapper" id="idWrapper">
+                    <span class="prefix-icon"><i class="fas fa-id-card"></i></span>
+                    <input class="ant-input" id="idNumber" type="text" placeholder="请输入18位身份证号" maxlength="18" />
+                </div>
+                <div class="ant-form-item-error" id="idError"><i class="fas fa-circle-exclamation"></i> 请输入有效的18位身份证号</div>
+            </div>
+        </div>
+
+        <!-- ====== 住宿与家属 ====== -->
+        <div class="ant-card">
+            <div class="ant-card-title">
+                <i class="fas fa-hotel"></i> 住宿与家属
+                <span class="badge">必填</span>
+            </div>
+
+            <!-- 是否携带家属 -->
+            <div class="ant-form-item">
+                <label class="ant-form-item-label">
+                    是否携带家属 <span class="required">*</span>
+                </label>
+                <div class="ant-switch-group">
+                    <label class="ant-switch-option">
+                        <input type="radio" name="family" value="no" checked />
+                        <span class="ant-switch-track"><span class="ant-switch-thumb"></span></span>
+                        <span class="ant-switch-label">否</span>
+                    </label>
+                    <label class="ant-switch-option">
+                        <input type="radio" name="family" value="yes" />
+                        <span class="ant-switch-track"><span class="ant-switch-thumb"></span></span>
+                        <span class="ant-switch-label">是</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 家属信息 (条件显示) -->
+            <div class="family-fields" id="familyFields">
+                <div class="ant-form-item">
+                    <label class="ant-form-item-label">
+                        家属姓名 <span class="required">*</span>
+                    </label>
+                    <div class="ant-input-wrapper" id="familyNameWrapper">
+                        <span class="prefix-icon"><i class="fas fa-user"></i></span>
+                        <input class="ant-input" id="familyName" type="text" placeholder="请输入家属姓名" maxlength="20" />
+                    </div>
+                    <div class="ant-form-item-error" id="familyNameError"><i class="fas fa-circle-exclamation"></i> 请输入家属姓名</div>
+                </div>
+                <div class="ant-form-item">
+                    <label class="ant-form-item-label">
+                        家属身份证号 <span class="required">*</span>
+                    </label>
+                    <div class="ant-input-wrapper" id="familyIdWrapper">
+                        <span class="prefix-icon"><i class="fas fa-id-card"></i></span>
+                        <input class="ant-input" id="familyId" type="text" placeholder="请输入家属身份证号" maxlength="18" />
+                    </div>
+                    <div class="ant-form-item-error" id="familyIdError"><i class="fas fa-circle-exclamation"></i> 请输入有效的家属身份证号</div>
+                </div>
+            </div>
+
+            <!-- 房型选择 -->
+            <div class="ant-form-item">
+                <label class="ant-form-item-label">
+                    房型选择 <span class="required">*</span>
+                </label>
+                <div class="ant-radio-group" id="roomGroup">
+                    <label class="ant-radio-card active" data-value="standard">
+                        <input type="radio" name="room" value="standard" checked />
+                        <i class="fas fa-bed"></i>
+                        标间
+                        <div class="room-desc">双床</div>
+                    </label>
+                    <label class="ant-radio-card" data-value="single">
+                        <input type="radio" name="room" value="single" />
+                        <i class="fas fa-bed"></i>
+                        单间
+                        <div class="room-desc">大床</div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 其他需求 ====== -->
+        <div class="ant-card">
+            <div class="ant-card-title">
+                <i class="fas fa-pen"></i> 其他需求
+                <span class="badge" style="background:#d9dee5;color:#6b7a8f;">选填</span>
+            </div>
+            <div class="ant-form-item" style="margin-bottom:4px;">
+                <textarea class="ant-input-textarea" id="otherNeeds" placeholder="如有特殊饮食、住宿等需求，请在此注明…"></textarea>
+            </div>
+        </div>
+
+        <!-- ====== 确认 ====== -->
+        <div class="ant-card" style="margin-bottom:0;">
+            <div class="ant-form-item" style="margin-bottom:4px;">
+                <label class="ant-checkbox-wrapper" id="confirmWrapper">
+                    <input type="checkbox" id="confirmCheck" />
+                    <span class="ant-checkbox-box"><i class="fas fa-check"></i></span>
+                    <span class="ant-checkbox-label">
+                        <strong>确认信息无误</strong> — 我已核对所填信息真实、准确
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <div style="height:12px;"></div>
+
+    </div>
+
+    <!-- ===== 底部提交 ===== -->
+    <div class="submit-area">
+        <button class="ant-btn-primary" id="submitBtn">
+            <i class="fas fa-paper-plane"></i> 提交登记
+        </button>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMsg">提交成功！</span>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+
+            const nameInput = $('#name');
+            const phoneInput = $('#phone');
+            const unitInput = $('#unit');
+            const positionInput = $('#position');
+            const idInput = $('#idNumber');
+            const familyRadio = document.querySelectorAll('input[name="family"]');
+            const familyFields = $('#familyFields');
+            const familyNameInput = $('#familyName');
+            const familyIdInput = $('#familyId');
+            const roomCards = $$('.ant-radio-card');
+            const otherNeeds = $('#otherNeeds');
+            const confirmCheck = $('#confirmCheck');
+            const submitBtn = $('#submitBtn');
+            const toast = $('#toast');
+            const toastMsg = $('#toastMsg');
+
+            const nameError = $('#nameError');
+            const phoneError = $('#phoneError');
+            const unitError = $('#unitError');
+            const idError = $('#idError');
+            const familyNameError = $('#familyNameError');
+            const familyIdError = $('#familyIdError');
+            const nameWrapper = $('#nameWrapper');
+            const phoneWrapper = $('#phoneWrapper');
+            const unitWrapper = $('#unitWrapper');
+            const idWrapper = $('#idWrapper');
+            const familyNameWrapper = $('#familyNameWrapper');
+            const familyIdWrapper = $('#familyIdWrapper');
+
+            function isValidIdCard(id) {
+                if (!id) return false;
+                const s = id.trim().toUpperCase();
+                if (s.length !== 18) return false;
+                const reg = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dX]$/;
+                return reg.test(s);
+            }
+
+            function isValidPhone(phone) {
+                return /^1[3-9]\d{9}$/.test(phone.trim());
+            }
+
+            let toastTimer = null;
+
+            function showToast(msg, type) {
+                type = type || 'success';
+                const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation';
+                toast.querySelector('i').className = 'fas ' + icon;
+                toastMsg.textContent = msg;
+                toast.className = 'toast show ' + type;
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toast.className = 'toast';
+                }, 2800);
+            }
+
+            function clearError(wrapper, errorEl) {
+                if (wrapper) wrapper.classList.remove('error');
+                if (errorEl) errorEl.classList.remove('show');
+            }
+
+            function showError(wrapper, errorEl) {
+                if (wrapper) wrapper.classList.add('error');
+                if (errorEl) errorEl.classList.add('show');
+            }
+
+            function validateName() {
+                const val = nameInput.value.trim();
+                if (!val) { showError(nameWrapper, nameError); return false; }
+                clearError(nameWrapper, nameError);
+                return true;
+            }
+
+            function validatePhone() {
+                const val = phoneInput.value.trim();
+                if (!isValidPhone(val)) { showError(phoneWrapper, phoneError); return false; }
+                clearError(phoneWrapper, phoneError);
+                return true;
+            }
+
+            function validateUnit() {
+                const val = unitInput.value.trim();
+                if (!val) { showError(unitWrapper, unitError); return false; }
+                clearError(unitWrapper, unitError);
+                return true;
+            }
+
+            function validateId() {
+                const val = idInput.value.trim();
+                if (!isValidIdCard(val)) { showError(idWrapper, idError); return false; }
+                clearError(idWrapper, idError);
+                return true;
+            }
+
+            function validateFamilyName() {
+                const isYes = document.querySelector('input[name="family"]:checked').value === 'yes';
+                if (!isYes) return true;
+                const val = familyNameInput.value.trim();
+                if (!val) { showError(familyNameWrapper, familyNameError); return false; }
+                clearError(familyNameWrapper, familyNameError);
+                return true;
+            }
+
+            function validateFamilyId() {
+                const isYes = document.querySelector('input[name="family"]:checked').value === 'yes';
+                if (!isYes) return true;
+                const val = familyIdInput.value.trim();
+                if (!isValidIdCard(val)) { showError(familyIdWrapper, familyIdError); return false; }
+                clearError(familyIdWrapper, familyIdError);
+                return true;
+            }
+
+            function validateAll() {
+                return validateName() && validatePhone() && validateUnit() && validateId() &&
+                    validateFamilyName() && validateFamilyId();
+            }
+
+            nameInput.addEventListener('input', validateName);
+            phoneInput.addEventListener('input', validatePhone);
+            unitInput.addEventListener('input', validateUnit);
+            idInput.addEventListener('input', validateId);
+            familyNameInput.addEventListener('input', validateFamilyName);
+            familyIdInput.addEventListener('input', validateFamilyId);
+
+            familyRadio.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'yes') {
+                        familyFields.classList.add('show');
+                        validateFamilyName();
+                        validateFamilyId();
+                    } else {
+                        familyFields.classList.remove('show');
+                        clearError(familyNameWrapper, familyNameError);
+                        clearError(familyIdWrapper, familyIdError);
+                    }
+                });
+            });
+
+            roomCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    roomCards.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) radio.checked = true;
+                });
+            });
+
+            confirmCheck.addEventListener('change', function() {
+                const wrapper = document.getElementById('confirmWrapper');
+                if (this.checked) {
+                    wrapper.style.color = 'var(--primary-blue)';
+                } else {
+                    wrapper.style.color = '';
+                }
+            });
+
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const isValid = validateAll();
+                if (!confirmCheck.checked) {
+                    showToast('请先确认信息无误', 'error');
+                    return;
+                }
+                if (!isValid) {
+                    showToast('请完善所有必填项', 'error');
+                    const firstError = document.querySelector('.ant-input-wrapper.error');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
+                }
+
+                const isFamily = document.querySelector('input[name="family"]:checked').value === 'yes';
+                const roomVal = document.querySelector('input[name="room"]:checked').value;
+                const roomLabel = roomVal === 'standard' ? '标间' : '单间';
+
+                const data = {
+                    name: nameInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    unit: unitInput.value.trim(),
+                    position: positionInput.value.trim(),
+                    idNumber: idInput.value.trim(),
+                    hasFamily: isFamily,
+                    familyName: isFamily ? familyNameInput.value.trim() : '',
+                    familyId: isFamily ? familyIdInput.value.trim() : '',
+                    roomType: roomLabel,
+                    otherNeeds: otherNeeds.value.trim(),
+                };
+
+                console.log('📋 提交数据：', data);
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> 提交中…';
+
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交登记';
+                    showToast('🎉 登记提交成功！感谢您的参与', 'success');
+                }, 1500);
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    submitBtn.click();
+                }
+            });
+
+            if (document.querySelector('input[name="family"]:checked').value === 'no') {
+                familyFields.classList.remove('show');
+            } else {
+                familyFields.classList.add('show');
+            }
+
+            [nameWrapper, phoneWrapper, unitWrapper, idWrapper, familyNameWrapper, familyIdWrapper].forEach(w => {
+                if (w) w.classList.remove('error');
+            });
+            [nameError, phoneError, unitError, idError, familyNameError, familyIdError].forEach(e => {
+                if (e) e.classList.remove('show');
+            });
+
+            console.log('✅ 会议登记表单已加载，邀请函风格 + 主色调 #145CD1');
+        })();
+    </script>
+
+</body>
+</html>

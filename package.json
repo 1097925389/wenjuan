@@ -7,7 +7,7 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "concurrently -k -n web,api -c cyan,blue \"vite --host 0.0.0.0\" \"cross-env DEV_API_ONLY=1 PORT=3001 PUBLIC_URL=http://localhost:5173 tsx watch server/index.ts\"",
+    "dev": "concurrently -k -n web,api -c cyan,blue \"vite --host 0.0.0.0\" \"cross-env DEV_API_ONLY=1 PORT=5178 PUBLIC_URL=http://localhost:5173 tsx watch server/index.ts\"",
     "clean": "tsx scripts/clean.ts",
     "build": "npm run clean && tsc -b && vite build && tsc -p tsconfig.server.json",
     "start": "node server-dist/server/index.js",
